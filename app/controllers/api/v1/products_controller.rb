@@ -5,7 +5,7 @@ class Api::V1::ProductsController < ApplicationController
 
 	def list
 		products = Product.all
-		render json: products, status: :ok
+		render json: products, status: 200
 	end
 
 	def create
@@ -14,19 +14,34 @@ class Api::V1::ProductsController < ApplicationController
 		product.quantity = params[:quantity]
 
 		if product.save
-			render json: product
+			render json: product, status: 201 and return
+		elsif product.nil_fields?
+			error_status = :bad_request
 		else
-			render json: {"errors": product.errors}
+			error_status = :unprocessable_entity
 		end
+
+		render json: {message: 'Product not saved', errors: product.errors}, status: error_status
 	end
 
 	def destroy
 		product = Product.find_by_id(params[:id])
-		product.destroy
+
+		if product.nil?
+			render json: {message: 'Product not found'}, status: :not_found
+		else
+			product.destroy
+		end
 	end
 
 	def find
-		render json: Product.find_by_id(params[:id])
+		product = Product.find_by_id(params[:id])
+
+		if product.nil?
+			render json: {"message": "Product not found"}, status: 404
+		else
+			render json: product, status: 200
+		end
 	end
 
 	def update
@@ -35,10 +50,14 @@ class Api::V1::ProductsController < ApplicationController
 		product.quantity = params[:quantity]
 
 		if product.save
-			render json: product
+			render json: product, status: 200 and return
+		elsif product.nil_fields?
+			error_status = :bad_request
 		else
-			render json: {"errors": product.errors}
+			error_status = :unprocessable_entity
 		end
+
+		render json: {message: 'Product not updated', errors: product.errors}, status: error_status
 	end
 
 end
