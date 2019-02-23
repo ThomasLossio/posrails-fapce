@@ -1,4 +1,6 @@
 class Api::V1::ProductsController < ApplicationController
+	before_action :find_product, only: [:find, :update, :destroy]
+
 	def hello_world
 		render json: {message: 'Hello API'}
 	end
@@ -25,39 +27,44 @@ class Api::V1::ProductsController < ApplicationController
 	end
 
 	def destroy
-		product = Product.find_by_id(params[:id])
 
-		if product.nil?
+		if @product.nil?
 			render json: {message: 'Product not found'}, status: :not_found
 		else
-			product.destroy
+			@product.destroy
 		end
 	end
 
 	def find
-		product = Product.find_by_id(params[:id])
-
-		if product.nil?
+		
+		if @product.nil?
 			render json: {"message": "Product not found"}, status: 404
 		else
-			render json: product, status: 200
+			render json: @product, status: 200
 		end
 	end
 
 	def update
-		product = Product.find_by_id(params[:id])
-		product.name = params[:name]
-		product.quantity = params[:quantity]
+		
+		if @product.nil?
+			render json: {"message": "Product not found"}, status: 404 and return
+		end
+		@product.name = params[:name]
+		@product.quantity = params[:quantity]
 
-		if product.save
-			render json: product, status: 200 and return
-		elsif product.nil_fields?
+		if @product.save
+			render json: @product, status: 200 and return
+		elsif @product.nil_fields?
 			error_status = :bad_request
 		else
 			error_status = :unprocessable_entity
 		end
 
-		render json: {message: 'Product not updated', errors: product.errors}, status: error_status
+		render json: {message: 'Product not updated', errors: @product.errors}, status: error_status
 	end
 
+	private
+	def find_product
+		@product = Product.find_by_id(params[:id])
+	end
 end
