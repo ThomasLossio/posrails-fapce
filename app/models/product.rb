@@ -1,5 +1,6 @@
 class Product < ApplicationRecord
 	has_one :price
+	has_many :pieces
 
 	validates :name, presence: true
 	validates :quantity, presence: true
