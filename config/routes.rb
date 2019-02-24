@@ -8,7 +8,9 @@ Rails.application.routes.draw do
 	  		#post "products", to:"products#create"
 	  		#delete "products/:id", to:"products#destroy"
 	  		#put "products/:id", to:"products#update"
-	  		resources :products
+	  		resources :products do
+	  			resources :pieces
+  			end
 		end
 	end	
 end

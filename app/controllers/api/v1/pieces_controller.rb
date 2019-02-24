@@ -2,7 +2,7 @@ class Api::V1::PiecesController < ApplicationController
 	before_action :find_piece, only: [:show, :update, :destroy]
 
 	def index
-		pieces = Piece.find_by product_id: params[:product_id]
+		pieces = Piece.where product_id: params[:product_id]
 
 		render json: pieces, status: :ok
 	end
